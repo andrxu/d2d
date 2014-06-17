@@ -21,31 +21,21 @@ int _tmain(int argc, _TCHAR* argv[])
     IWICImagingFactory* pWICFactory = NULL;
 
     CHECKHR(CoInitialize(nullptr));
-    CHECKHR(CoCreateInstance(
-        CLSID_WICImagingFactory1,
-        nullptr,
-        CLSCTX_INPROC_SERVER,
-        IID_IWICImagingFactory,
-        (LPVOID*)&pWICFactory));
+    CHECKHR(CoCreateInstance(CLSID_WICImagingFactory1, nullptr, CLSCTX_INPROC_SERVER,
+        IID_IWICImagingFactory, (LPVOID*)&pWICFactory));
 
     // Create an IWICBitmap and RT
     IWICBitmap* pWICBitmap = NULL;
     static const UINT sc_bitmapWidth = 640;
     static const UINT sc_bitmapHeight = 480;
-    CHECKHR(pWICFactory->CreateBitmap(
-        sc_bitmapWidth,
-        sc_bitmapHeight,
-        GUID_WICPixelFormat32bppBGR,
+
+    CHECKHR(pWICFactory->CreateBitmap(sc_bitmapWidth, sc_bitmapHeight, GUID_WICPixelFormat32bppBGR,
         WICBitmapCacheOnLoad,
-        &pWICBitmap
-        ));
+        &pWICBitmap));
 
     // Set the render target type to D2D1_RENDER_TARGET_TYPE_DEFAULT to use software rendering.
     CHECKHR(g_pD2DFactory->CreateWicBitmapRenderTarget(
-        pWICBitmap,
-        D2D1::RenderTargetProperties(),
-        &g_pRenderTarget
-        ));
+        pWICBitmap, D2D1::RenderTargetProperties(), &g_pRenderTarget));
 
     // Create text format and a path geometry representing an hour glass. 
     IDWriteTextFormat*  pTextFormat = NULL;
@@ -63,13 +53,14 @@ int _tmain(int argc, _TCHAR* argv[])
         &pTextFormat
         ));
 
-    // Create a path geometry
-    ID2D1PathGeometry* pPathGeometry = NULL;
     CHECKHR(pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER));
     CHECKHR(pTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER));
-    CHECKHR(g_pD2DFactory->CreatePathGeometry(&pPathGeometry));
 
+    // Create a path geometry
+    ID2D1PathGeometry* pPathGeometry = NULL;
     ID2D1GeometrySink* pSink = NULL;
+
+    CHECKHR(g_pD2DFactory->CreatePathGeometry(&pPathGeometry));
     CHECKHR(pPathGeometry->Open(&pSink));
 
     pSink->SetFillMode(D2D1_FILL_MODE_ALTERNATE);
@@ -132,7 +123,6 @@ int _tmain(int argc, _TCHAR* argv[])
         &pBlackBrush
         ));
 
-
     // Render into the bitmap.
     g_pRenderTarget->BeginDraw();
     g_pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
@@ -167,8 +157,6 @@ int _tmain(int argc, _TCHAR* argv[])
     IWICStream* pStream = NULL;
     CHECKHR(pWICFactory->CreateStream(&pStream));
 
-    WICPixelFormatGUID format = GUID_WICPixelFormatDontCare;
-
     // Use InitializeFromFilename to write to a file. If there is need to write inside the memory, use InitializeFromMemory. 
     static const WCHAR filename[] = L"output.png";
     CHECKHR(pStream->InitializeFromFilename(filename, GENERIC_WRITE));
@@ -182,9 +170,9 @@ int _tmain(int argc, _TCHAR* argv[])
 
     // Use IWICBitmapFrameEncode to encode the bitmap into the picture format you want.
     CHECKHR(pFrameEncode->Initialize(NULL));
-
     CHECKHR(pFrameEncode->SetSize(sc_bitmapWidth, sc_bitmapHeight));
 
+    WICPixelFormatGUID format = GUID_WICPixelFormatDontCare;
     CHECKHR(pFrameEncode->SetPixelFormat(&format));
     CHECKHR(pFrameEncode->WriteSource(pWICBitmap, NULL));
     CHECKHR(pFrameEncode->Commit());
