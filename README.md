@@ -1,7 +1,11 @@
 # d2d
-A Sample of Server-Side Image Rendering on Windows Server 2012 with DirectWrite and Direct2D
 
-This console application shows you how to generate an image in memory with DirectWrite and Direct2D.
+This console application shows you how to render an image in memory with Microsoft's DirectWrite and Direct2D.
 
 ## Sample output
 ![](DWriteTry/output.png)
+
+## Platform
+* Windows Server 2012 
+* Windows 8
+ 
